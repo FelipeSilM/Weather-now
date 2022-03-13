@@ -1,39 +1,80 @@
-import {GetStaticProps } from "next"
 import Layout from "../components/templates/Layout"
-import moment from "moment"
-import FormatedDate from "../model/formatedDate"
+import { GetStaticProps } from "next";
+import { dateBuilder, getIcon } from '../components/apiManegements'
 
-export const getStaticProps: GetStaticProps = async () => {
-  const data = await fetch
-  ('https://apiprevmet3.inmet.gov.br/previsao/3550308')
-  const forecast = await data.json()
-  const spForecast = await forecast[3550308]
 
-  //getting formated dates
-  const dates = new FormatedDate().nextFirstDay
-  const currentDate = dates.currentDate
-  const nextDays = dates.nextFirstDay
+import { useState } from "react";
+import { useEffect } from "react";
 
-  return {
-    props: {
-      dates
-    }
-  }
+const api = {
+  key: "2d430705df3eb5fe1c551cace54e0b81",
+  base: "https://api.openweathermap.org/data/2.5/",
+  city: "São Paulo",
+  lang: "pt_br",
+  units: "metric"
 }
 
-export default function Home(props) {
+export const getStaticProps: GetStaticProps = async () => {
 
-  const currentForecast = {
-    description: "Ensolarado",
-    temp: "10°",
-    day: "Sabado",
-    minTemp: "10",
-    maxTemp: "22"
+  const data = await fetch(`${api.base}weather?q=${api.city}&lang=${api.lang}&units=${api.units}&appid=${api.key}`)
+    .then(response => {
+      if (!response.ok) {
+        throw new Error(`http error: status ${response.status}`)
+      }
+      return response.json();
+    })
+    .catch(error => {
+      return error.message
+    })
+
+  return {
+
+    props: {
+      data
+    }
   }
+
+}
+
+export default function Home({ data }) {
+
+  const [datas, setDatas] = useState({
+    city: "São Paulo, BR",
+    dateLine: "Sábado, 1 janeiro 2022",
+    icon: getIcon(),
+    description: "descrição",
+    temp: `0°C`,
+    day: "Sabado",
+    minTemp: `0°C`,
+    maxTemp: `0°C`
+  })
+
+  useEffect(() => {
+    if (typeof data === 'object') {
+      const now = new Date()
+
+      setDatas({
+        city: `${data.name}, ${data.sys.country}`,
+        dateLine: dateBuilder(now),
+        icon: getIcon(data.weather[0].icon),
+        description: data.weather[0].description,
+        temp: `${Math.round(data.main.temp)}°C`,
+        day: "Sabado",
+        minTemp: `${Math.round(data.main.temp_min)}°C `,
+        maxTemp: ` ${Math.round(data.main.temp_max)}°C`
+      })
+    } else if (typeof data === 'string') {
+      alert(data)
+    }
+
+  }, [])
+
   return (
     <>
-      <Layout city="São Paulo" currentForecast={currentForecast} ></Layout>
-      {console.log(props.dates)}
+      <Layout city={datas.city} dateLine={datas.dateLine} icon={datas.icon}
+        currentTemp={datas.temp} desc={datas.description} tempMin={datas.minTemp} tempMax={datas.maxTemp}
+      ></Layout>
+      {console.log(data)}
     </>
   )
 }

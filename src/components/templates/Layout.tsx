@@ -1,37 +1,25 @@
-import CurrentTemp from './CurrentTemp'
-import TempDetails from './TempDetails'
-import WeekForecast from './WeekForecast'
+import LocationData from './LocationData'
+import WeatherData from './WeatherData'
 
 interface LayoutProps {
-    city: string,
-    currentForecast: {
-        description: string,
-        temp: string,
-        day?: string,
-        minTemp?: string,
-        maxTemp?: string,
-        season?: string,
-        maxMoisture?: string,
-        minMoisure?: string,
-        winds?: string,
-    },
+    city:string,
+    dateLine:string,
+    icon?:any,
+    currentTemp: string,
+    desc: string,
+    tempMin: string,
+    tempMax: string,
 }
 
 export default function Layout(props: LayoutProps) {
     return (
         <div className={`
-            flex flex-col md:flex-row justify-center items-center h-screen
+            flex flex-col justify-evenly lg:justify-center items-center h-screen lg:flex-row
             bg-gradient-to-b from-japanese-indigo to-blue 
         `}>
-            <CurrentTemp city={props.city} description={props.currentForecast.description}
-                temp={props.currentForecast.temp}></CurrentTemp>
-            <div className='w-screen px-8 md:w-3/5'>
-
-                <TempDetails day={props.currentForecast.day} minTemp={props.currentForecast.minTemp} maxTemp={props.currentForecast.maxTemp}
-                    season={props.currentForecast.day} maxMoisture={props.currentForecast.day} minMoisure={props.currentForecast.day} winds={props.currentForecast.day}
-                ></TempDetails>
-                <WeekForecast></WeekForecast>
-            </div>
+            <LocationData city={props.city} dateLine={props.dateLine} icon={props.icon}/>
+            <WeatherData currentTemp={props.currentTemp} desc={props.desc} tempMin={props.tempMin} tempMax={props.tempMax}/>
+            
         </div>
     )
 }
