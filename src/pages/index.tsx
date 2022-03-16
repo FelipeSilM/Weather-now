@@ -16,6 +16,7 @@ const api = {
 
 export const getStaticProps: GetStaticProps = async () => {
 
+  const hour = 60 * 60
   const data = await fetch(`${api.base}weather?q=${api.city}&lang=${api.lang}&units=${api.units}&appid=${api.key}`)
     .then(response => {
       if (!response.ok) {
@@ -31,7 +32,8 @@ export const getStaticProps: GetStaticProps = async () => {
 
     props: {
       data
-    }
+    },
+    revalidate : hour
   }
 
 }
